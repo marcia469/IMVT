@@ -608,16 +608,19 @@ const FIXED_PERIODS = [
   { name: 'P2', start: '2022-09-21', end: '2023-09-23' },
   { name: 'P3', start: '2023-09-24', end: '2024-11-01' },
   { name: 'P4', start: '2024-11-02', end: '2026-05-05' },
+  { name: 'P5', start: '2026-05-06', end: 'present' },
 ];
 
 function loadFixedPeriods() {
   // Replace any existing periods with the canonical set.
   periods = [];
   periodCounter = 1;
+  const lastDate = PRICES[PRICES.length - 1].d;
   for (const fp of FIXED_PERIODS) {
     const id = nextPeriodId++;
     const color = PERIOD_COLORS[(id - 1) % PERIOD_COLORS.length];
-    periods.push({ id, name: fp.name, start: fp.start, end: fp.end, color, visible: true });
+    const endDate = (fp.end === 'present') ? lastDate : fp.end;
+    periods.push({ id, name: fp.name, start: fp.start, end: endDate, color, visible: true });
     periodCounter++;
   }
   renderPeriods();
@@ -1487,7 +1490,10 @@ document.getElementById('statsToggle').addEventListener('click', e => {
   s.classList.toggle('hidden');
 });
 
-setActive('rangeGroup', 'range', 'all');
+// Default chart range = 3Y
+viewEnd = PRICES.length - 1;
+viewStart = Math.max(0, viewEnd - 252 * 3 + 1);
+setActive('rangeGroup', 'range', '3y');
 setActive('viewGroup', 'view', 'price');
 TOP_FRAC = viewFracs.price;
 renderTable();
